@@ -1,0 +1,136 @@
+*{
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family:Verdana, Geneva, Tahoma, sans-serif;
+}
+
+body{
+    display:flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background: url('img/fondoazulgrande.jpg') no-repeat;
+    background-size: cover;
+    background-position: center;
+}
+
+/*wrapper*/
+.form{
+    width: 450px;
+
+    background: transparent;
+    border: 2px solid rgba(255, 255, 255, .2);
+    backdrop-filter: blur(20px);
+    box-shadow: 0 0 10px rgba(0, 0, 0, .2);
+
+    color: white;
+    border-radius: 10px;
+    padding: 30px 40px;
+}
+
+h1{
+    margin-top: 20px;
+    font-weight: bold;
+    font-size: 36px;
+    text-align: center;
+}
+
+/*mensaje*/
+.mensaje {
+    display: flex;  
+    justify-content: center;
+    align-items: center;                
+    margin-top: 18px;
+    margin-bottom: -10px;
+    font-size: 18px;
+    
+    border-top: 4px solid white;
+    border-bottom: 4px solid white;
+    border-top-left-radius: 4px; 
+    border-top-right-radius: 4px;
+    border-bottom-left-radius: 4px;
+    border-bottom-right-radius: 4px;
+}
+.mensaje p {
+    margin: 0; 
+}
+.mensaje p.error .success{
+    color: rgb(255, 255, 255);
+}
+
+/*input-box*/
+
+.text{
+    height: 50px;
+    margin-top: 38px;
+    margin-bottom: 80px;
+}
+
+.text input{
+    width: 100%;
+    height: 100%;
+    background: transparent;
+    border: none;
+    outline: none;
+    border: 2px solid rgba(255, 255, 255, .2);
+    border-radius: 40px;
+
+    font-size: 16px;
+    color: white;
+    padding: 20px 45px 20px 20px;
+}
+
+.text input::placeholder{
+    color: white;
+}
+
+label{
+    margin-left: 15px;
+    margin-bottom: 10px;
+    font-size:24px;
+    font-weight: bold;
+}
+/*.text i = .input-box i*/
+
+.text i{
+    margin-left: 20px;
+    font-size: 40px;
+}
+
+.btn{
+    
+    width: 100%;
+    height: 45px;
+    font-weight: bold;
+    background-color: rgb(255, 255, 255);
+    border: none;
+    border-radius: 20px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, .1);
+    cursor: pointer;
+    font-size: 16px;
+    color: black;
+    transition: background 0.4s ease-in-out;   
+}
+
+.btn:hover{
+    background-color: rgb(196, 73, 245);
+    color: rgb(255, 255, 255);
+}
+
+.form .link{
+    font-size: 15px;
+    text-align: center;
+    margin-top: 20px;
+    margin-bottom: 30px;
+}
+
+.link p a{
+    color: white;
+    font-weight: 600;
+    text-decoration: none;
+}
+
+.link p a:hover{
+    text-decoration: underline;
+}
