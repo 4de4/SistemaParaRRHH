@@ -1,3 +1,3 @@
 <?php	
-	define("CONTROLADOR_PRINCIPAL", "Empleado");
+	define("CONTROLADOR_PRINCIPAL", "Menu");
 	define("ACCION_PRINCIPAL", "index");
