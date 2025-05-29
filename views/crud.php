@@ -17,6 +17,7 @@
             width: 90%;
             border-collapse: collapse;
             margin-top: 20px;
+            border-radius: 10px;
         }
     </style>
     <title>crud...</title>
