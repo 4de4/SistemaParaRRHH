@@ -3,6 +3,22 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        *{
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            background-attachment: fixed;
+            background-image: url("img/fondoazulgrande.jpg");
+            background-size: cover;
+            font-family: Arial, sans-serif;
+        }
+        table{
+            width: 90%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+    </style>
     <title>crud...</title>
 </head>
 <body>
