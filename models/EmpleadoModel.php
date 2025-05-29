@@ -1,63 +1,30 @@
 <?php
-class ClienteModel {		
+class Empleado_Model {		
     //definir atributos:
     private $db;
-    private $empleado;
-    private $tipo;
-
+    private $empleado;		
     public function __construct(){
+	//usando atributo db para trabajar con el método conexión 
+        //que esta en la carpeta config/database.php
     $this->db = Conectar::conexion();
 	$this->empleado = array();
-    $this->tipo = get_class($this->db);
     }		
-
-    
-
-    public function listar(){
-
-    if ($this->tipo=='PDO') {
-        $pst=$this->db->prepare("select * from Empleados");
-            $pst->execute();
-            $resultados=$pst->fetchAll(\PDO::FETCH_ASSOC);
-            
-            //$sql="select * from Producto";
-
-            foreach($resultados as $resultado)
+    public function get_empleado()
+	{
+            $sql = "SELECT e.*, c.*, d.* FROM empleado e INNER JOIN contrato c ON
+             e.id_e = c.id_c INNER JOIN departamento d ON e.id_e = d.id_d";
+            $resultado = $this->db->query($sql);
+            //La función fetch_assoc() en PHP se utiliza para obtener una fila 
+            //de resultados de una consulta SQL como un arreglo asociativo, donde 
+            //cada columna de la fila se convierte en una clave del arreglo, con 
+            //el nombre de la columna como clave y el valor de la celda como el 
+            //valor correspondiente.
+            while($row = $resultado->fetch_assoc())
             {
-                $this->empleado[]=$resultado;
+            	$this->empleado[] = $row;
             }
-            
-    } elseif ($this->tipo=='mysqli') {
-        $pst=$this->db->prepare("select * from Empleados");
-            $pst->execute();
-            $res=$pst->get_result();
-            $resultados=$res->fetch_All(MYSQLI_ASSOC);
-            foreach($resultados as $resultado){
-                $this->empleado[]=$resultado;
-            }
-    }
-
-        $this->db=null;
-        return $this->empleado;
-
-	}
-
-    public function insertar(/*completar*/){			
-			
-    }
-
-
-    public function modificar(/*completar*/){
-
-	}
-
-
-	public function eliminar($id){
-        /*completar*/
-	}
-        
-
-    public function buscarEmpleado($id){
-		/*completar*/
+            return $this->empleado;
 	}
 }
+
+

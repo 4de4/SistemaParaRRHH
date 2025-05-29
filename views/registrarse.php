@@ -41,12 +41,12 @@
             <div class="text">
                 <i class="fa-solid fa-user"></i>
                 <label for="">Usuario:</label>
-                <input type="text" placeholder="Ingrese un usuario..." name="username">
+                <input type="text" placeholder="Ingrese un usuario..." name="Username">
             </div>
             <div class="text">
                 <i class="fa-solid fa-unlock-keyhole"></i>
                 <label for="">Contraseña:</label>
-                <input type="password" placeholder="Ingrese una contraseña..." name="password">
+                <input type="password" placeholder="Ingrese una contraseña..." name="Password">
             </div>
             <div class="text">
                 <i class="fa-solid fa-key"></i>
@@ -57,7 +57,7 @@
             <button type="submit" class="btn">Registrarse</button>
             
             <div class="link">
-                <p>Ya tiene una cuenta? <a href="iniciarsesion.php">Iniciar Sesion</a></p>
+                <p>Ya tiene una cuenta? <a href="../index.php">Iniciar Sesion</a></p>
             </div>
         </form>
     </div>
