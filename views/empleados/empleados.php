@@ -55,7 +55,16 @@
             </div>
         </tbody>					
 	</table>
-    
+    <br><br><br><br>
+    <div>
+            <h3><?php echo $cafe["comprobar"]?></h3>
+            <form method="post" action="../config/configuracion.php">
+                <label>Elige tipo de conexión(ES para ver si funciona el cambio de conexion):</label><br>
+                <input type="radio" name="conexion" value="PDO"> PDO<br>
+                <input type="radio" name="conexion" value="mysqli"> MySQLi<br>
+                <input type="submit" value="Guardar configuración">
+            </form>
+        </div>
     </center>
 </body>
 </html>

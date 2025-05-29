@@ -12,7 +12,7 @@
 </head>
 <body>
     <div class="form">
-        <form action="./views/crud.php?c=usuario&a=iniciar" method="POST">
+        <form action="views/crud.php?c=usuario&a=iniciar" method="POST">
             <h1>Iniciar Sesion</h1>
 
             <div class="mensaje">
@@ -34,12 +34,12 @@
             <div class="text">
                 <i class="fa-solid fa-user"></i>
                 <label for="">Usuario:</label>
-                <input type="text" placeholder="Ingrese su usuario..." name="Username">
+                <input type="text" placeholder="Ingrese su usuario..." name="username">
             </div>
             <div class="text">
                 <i class="fa-solid fa-unlock"></i>
                 <label for="">Contraseña:</label>
-                <input type="password" placeholder="Ingrese su contraseña..." name="Password">
+                <input type="password" placeholder="Ingrese su contraseña..." name="password">
             </div>
             
             <button type="submit" class="btn">Iniciar Sesión</button>

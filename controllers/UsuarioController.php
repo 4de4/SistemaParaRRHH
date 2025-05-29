@@ -10,7 +10,7 @@ class UsuarioController
 
     function iniciar()
     {
-        if (isset($_POST['Username']) && isset($_POST['Password'])) {
+        if (isset($_POST['username']) && isset($_POST['password'])) {
             function validate($data)
             {
                 $data = trim($data);
@@ -20,14 +20,12 @@ class UsuarioController
                 return $data;
             }
 
-            $username = validate($_POST['Username']);
-            $password = validate($_POST['Password']);
-
-            //VALIDAR SI ESTAN VACIOS
-            if (empty($username)) {
+            $usuario = validate($_POST['username']);
+            $clave = validate($_POST['password']);
+            if (empty($usuario)) {
                 header("location: ../index.php?error=El usuario es requerido");
                 exit();
-            } elseif (empty($password)) {
+            } elseif (empty($clave)) {
                 header("location: ../index.php?error=La clave es requerida");
                 exit();
             } else {
@@ -36,13 +34,13 @@ class UsuarioController
             $sql = "SELECT * FROM usuario WHERE user = '$usuario' AND clave = '$clave'";
             $query = $con->query($sql);*/
 
-                //PARA VERIFICAR EN LA BASE DE DATOS
-
                 $guardar = new Usuario();
-                $row = $guardar->Login($username);
-                if ($row) {
-                    if ($row['password'] === $password) {
-                        $_SESSION['username'] = $row['username'];
+                $row = $guardar->Login($usuario);
+                if ($row && count($row) > 0) {
+                    $user = $row[0];
+                    if ($user['password'] === $clave) {
+                        $_SESSION['username'] = $user['username'];
+                        $_SESSION['rol'] = $user['rol'];
 
                         header("location: ../views/crud.php");
                         exit();
@@ -51,7 +49,7 @@ class UsuarioController
                         exit();
                     }
                 } else {
-                    header("location: ../index.php?error=El usuario o clave son inexistentes");
+                    header("location: ../index?error=El usuario o clave son inexistentes");
                     exit();
                 }
             }
@@ -71,11 +69,11 @@ class UsuarioController
             return $data;
         }
 
-        $username = validar($_POST['Username']);
-        $password = validar($_POST['Password']);
+        $usuario = validar($_POST['Username']);
+        $clave = validar($_POST['Password']);
         $Rpassword = validar($_POST['RPassword']);
 
-        $datosUsuario = 'Username=' . $username;
+        $datosUsuario = 'Username=' . $usuario;
 
         if(empty($username)){
             header("location: ../views/registrarse.php?error=El usuario es requerido&$datosUsuario");
@@ -100,7 +98,7 @@ class UsuarioController
                exit(); 
             }else{
                 $guardar = new Usuario();
-                $confirmar = $guardar->Registrar($username,$password);
+                $confirmar = $guardar->Registrar($usuario,$clave);
 
                 if($confirmar){
                     header("location: ../index.php?error=Usuario creado con exito!");
