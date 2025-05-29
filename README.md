@@ -1,4 +1,3 @@
 # SistemaParaRRHH
-Trabajo final 😊
-Integrantes:
-prueba7
+Trabajo final
+
