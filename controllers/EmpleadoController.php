@@ -10,5 +10,5 @@ class EmpleadoController {
         $data["empleado"] = $empleado->get_empleado();
         require_once "../views/empleados/empleados.php";
     }
-    
+
 }

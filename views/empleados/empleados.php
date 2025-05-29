@@ -37,7 +37,7 @@
                     echo "<tr>";
                     echo "<td>".$dato["nombre"]."</td>";
                     echo "<td>".$dato["apellido"]."</td>";
-                    echo "<td>".$dato["foto"]."</td>";
+                    echo "<td><img class='img' height='100px' src='http://localhost/SistemaParaRRHH/views/fotos/".basename($dato['foto'])."'/></td>";
                     echo "<td>".$dato["fecha_nacimiento"]."</td>";
                     echo "<td>".$dato["edad"]."</td>";
                     echo "<td>".$dato["fecha_inicio"]."</td>";
