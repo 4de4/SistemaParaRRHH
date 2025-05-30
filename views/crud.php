@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="img/fico.ico" type="imge/x-icon">
     <style>
         *{
             margin: 0;
@@ -17,6 +18,9 @@
             width: 90%;
             border-collapse: collapse;
             margin-top: 20px;
+            border-radius: 30px;
+            backcolor: rgba(255, 255, 255, 0.8);
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
         }
     </style>
     <title>crud...</title>
