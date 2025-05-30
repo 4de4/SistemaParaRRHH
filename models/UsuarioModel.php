@@ -1,35 +1,25 @@
 <?php
 class Usuario {
-    // private $guardar; // No parece usarse como propiedad de instancia de forma persistente
     private $db;
-    private $change; // Para saber si es PDO o MySQLi
+    private $change;
 
     public function __construct() {
-        // Es mejor que la conexión se pase o se obtenga de un singleton/factory
-        // en lugar de requerir 'database.php' directamente en cada modelo,
-        // pero por ahora mantenemos tu estructura.
         require_once('../config/database.php');
-        // $this->guardar = array(); // Inicializar aquí si se va a acumular en la instancia
         $this->db = Conectar::conexion();
-        if ($this->db) { // Verificar que la conexión se estableció
+        if ($this->db) {
             $this->change = get_class($this->db);
         } else {
-            // Manejar error de conexión si es necesario, aunque Conectar::conexion() ya usa die()
-            // Podrías lanzar una excepción o registrar un error.
             error_log("Error al conectar a la base de datos en UsuarioModel::__construct");
-            // $this->change podría quedar sin definir, lo que causaría problemas después.
-            // Es mejor asegurar que $this->db siempre sea un objeto válido o lanzar excepción.
+            // Considerar lanzar una excepción si la conexión es crítica aquí
         }
     }
 
     public function Login($username) {
-        $resultadosLogin = array(); // Usar una variable local para los resultados de esta función
-
+        $resultadosLogin = array();
         if (!$this->db) {
             error_log("Error de BD en UsuarioModel::Login - Conexión no establecida.");
-            return $resultadosLogin; // Retornar array vacío
+            return $resultadosLogin;
         }
-
         $sql = "SELECT id_u, username, password, rol FROM usuario WHERE username = ?";
 
         if ($this->change === 'PDO') {
@@ -40,8 +30,6 @@ class Usuario {
                 $resultadosLogin = $pst->fetchAll(PDO::FETCH_ASSOC);
             } catch (PDOException $e) {
                 error_log("Error PDO en Login: " . $e->getMessage());
-                // En un entorno de producción, no mostrarías $e->getMessage() al usuario.
-                // Aquí podrías retornar un array vacío o lanzar una excepción personalizada.
             }
         } elseif ($this->change === 'mysqli') {
             $pst = $this->db->prepare($sql);
@@ -57,8 +45,6 @@ class Usuario {
                 error_log("Error MySQLi al preparar la consulta en Login: " . $this->db->error);
             }
         }
-        // $this->db = null; // No cierres la conexión aquí si otros métodos la van a usar.
-                           // La conexión debería manejarse de forma centralizada o cerrarse al final del script.
         return $resultadosLogin;
     }
 
@@ -67,41 +53,111 @@ class Usuario {
             error_log("Error de BD en UsuarioModel::Registrar - Conexión no establecida.");
             return false;
         }
-
         $sql = "INSERT INTO usuario (username, password, rol) VALUES (?, ?, ?)";
-        // Por defecto, el rol será 'usuario' según tu BD, pero podrías querer especificarlo.
-        // Si la BD ya tiene DEFAULT 'usuario' para rol, puedes omitirlo de la inserción
-        // o pasar el rol como parámetro si quieres más flexibilidad.
         $rol_por_defecto = 'usuario';
-
 
         if ($this->change === 'PDO') {
             try {
                 $pst = $this->db->prepare($sql);
                 $pst->bindParam(1, $username);
                 $pst->bindParam(2, $passwordHasheada);
-                $pst->bindParam(3, $rol_por_defecto); // Asignar rol por defecto
-                return $pst->execute(); // Devuelve true en éxito, false en error
+                $pst->bindParam(3, $rol_por_defecto);
+                return $pst->execute();
             } catch (PDOException $e) {
-                // Manejo de error, por ejemplo, si el username ya existe (aunque el controlador ya lo verifica)
                 error_log("Error PDO en Registrar: " . $e->getMessage());
-                // Podrías verificar $e->getCode() para errores específicos como duplicados (23000)
                 return false;
             }
-        } elseif ($this->change === 'mysqli') {
+        } elseif ($this->change === 'mysqli') { // Corregido: 'mysqli'
             $pst = $this->db->prepare($sql);
             if ($pst) {
                 $pst->bind_param('sss', $username, $passwordHasheada, $rol_por_defecto);
                 $resultado = $pst->execute();
                 $pst->close();
-                return $resultado; // Devuelve true en éxito, false en error
+                return $resultado;
             } else {
                 error_log("Error MySQLi al preparar la consulta en Registrar: " . $this->db->error);
                 return false;
             }
         }
-        // $this->db = null; // No cierres la conexión aquí.
-        return false; // Si $this->change no es ni PDO ni mysqli
+        return false;
+    }
+
+    // *** NUEVO MÉTODO: Obtener todos los usuarios (para la lista de asignación de roles) ***
+    public function get_todos_los_usuarios() {
+        $listaUsuarios = array();
+        if (!$this->db) {
+            error_log("Error de BD en UsuarioModel::get_todos_los_usuarios - Conexión no establecida.");
+            return $listaUsuarios;
+        }
+
+        $idUsuarioActual = $_SESSION['usuario_id'] ?? 0; // Para no listarse a sí mismo
+        $sql = "SELECT id_u, username, rol FROM usuario WHERE id_u != ? ORDER BY username";
+
+        if ($this->change == 'PDO') {
+            try {
+                $pst = $this->db->prepare($sql);
+                $pst->bindParam(1, $idUsuarioActual, PDO::PARAM_INT);
+                $pst->execute();
+                $listaUsuarios = $pst->fetchAll(PDO::FETCH_ASSOC);
+            } catch (PDOException $e) {
+                error_log("Error PDO en get_todos_los_usuarios: " . $e->getMessage());
+            }
+        } elseif ($this->change == 'mysqli') {
+            $pst = $this->db->prepare($sql);
+            if ($pst) {
+                $pst->bind_param('i', $idUsuarioActual);
+                $pst->execute();
+                $res = $pst->get_result();
+                if ($res) {
+                    $listaUsuarios = $res->fetch_all(MYSQLI_ASSOC);
+                }
+                $pst->close();
+            } else {
+                error_log("Error MySQLi en get_todos_los_usuarios: " . $this->db->error);
+            }
+        }
+        return $listaUsuarios;
+    }
+
+    // *** NUEVO MÉTODO: Actualizar el rol de un usuario ***
+    public function actualizarRolUsuario($id_u, $nuevo_rol) {
+        if (!$this->db) {
+            error_log("Error de BD en UsuarioModel::actualizarRolUsuario - Conexión no establecida.");
+            return false;
+        }
+        
+        // Validar que $nuevo_rol sea uno de los permitidos ('jefe', 'empleado')
+        $rolesPermitidos = ['jefe', 'empleado']; // Ajusta según tus roles
+        if (!in_array($nuevo_rol, $rolesPermitidos)) {
+            error_log("Intento de asignar rol no permitido: " . $nuevo_rol . " al usuario ID: " . $id_u);
+            return false; // Rol no válido
+        }
+
+        $sql = "UPDATE usuario SET rol = ? WHERE id_u = ?";
+        $actualizado = false;
+
+        if ($this->change == 'PDO') {
+            try {
+                $pst = $this->db->prepare($sql);
+                $pst->bindParam(1, $nuevo_rol);
+                $pst->bindParam(2, $id_u, PDO::PARAM_INT);
+                $pst->execute();
+                $actualizado = ($pst->rowCount() > 0);
+            } catch (PDOException $e) {
+                error_log("Error PDO en actualizarRolUsuario: " . $e->getMessage());
+            }
+        } elseif ($this->change == 'mysqli') {
+            $pst = $this->db->prepare($sql);
+            if ($pst) {
+                $pst->bind_param('si', $nuevo_rol, $id_u); // 's' para rol (string), 'i' para id_u (integer)
+                $pst->execute();
+                $actualizado = ($this->db->affected_rows > 0);
+                $pst->close();
+            } else {
+                error_log("Error MySQLi en actualizarRolUsuario: " . $this->db->error);
+            }
+        }
+        return $actualizado;
     }
 }
 ?>
