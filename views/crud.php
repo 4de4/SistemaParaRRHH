@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" href="img/fico.ico" type="imge/x-icon">
+    <title>Crud...</title>
     <style>
         *{
             margin: 0;
