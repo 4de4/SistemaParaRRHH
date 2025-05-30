@@ -31,7 +31,7 @@
                 <a href="crud.php?c=empleado&a=index" class="menu-button"><i class="fas fa-id-card"></i> Ver Mis Datos / Boletas</a>
                 <a href="crud.php?c=departamento&a=index" class="menu-button"><i class="fas fa-info-circle"></i> Ver Departamentos</a>
             <?php endif; ?>
-            <a href="index.php?logout=true" class="menu-button logout-menu-button"><i class="fas fa-sign-out-alt"></i> Cerrar Sesión</a>
+            <a href="../index.php?logout=true" class="menu-button logout-menu-button"><i class="fas fa-sign-out-alt"></i> Cerrar Sesión</a>
         </div>
     </div>
 
