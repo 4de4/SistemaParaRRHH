@@ -1,21 +1,23 @@
 <?php
-class MenuController {		
-    private $db;
-    private $empleado;
-    private $change;
-    
+if (session_status() == PHP_SESSION_NONE) {
+    session_start();
+}
+
+class MenuController {
+
     public function __construct(){
-        require_once "../models/EmpleadoModel.php";
-        $this->empleado=new EmpleadoModel();
-        $this->db = Conectar::conexion();
-        $this->change = get_class($this->db);
-    }		
-    public function index(){			
-        /*$empleado = new EmpleadoModel();
-        //creando la variable titulo en el arreglo data:
-        $data["titulo"] = "Empleados";
-        $data["empleado"] = $empleado->get_empleado();*/
-        require_once "../views/menu.php";
+        if (!isset($_SESSION['usuario_id'])) {
+            header("Location: ../index.php?error=Acceso denegado. Debe iniciar sesión.");
+            exit();
+        }
     }
 
+    public function index(){
+        $data["titulo_pagina"] = "Panel Principal - RRHH";
+        $data["nombre_usuario"] = $_SESSION['username'] ?? 'Usuario';
+        $data["rol"] = $_SESSION['rol'] ?? 'default';
+
+        require_once "../views/menu.php";
+    }
 }
+?>

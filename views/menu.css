@@ -1,64 +1,116 @@
+/* Estilos para views/menu.php - Estilo "Ventana Transparente" similar a registrarse.css */
 * {
-  padding: 0;
-  margin: 0;
-  box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: Verdana, Geneva, Tahoma, sans-serif;
 }
 
 body {
-  background: #292929;
-  font-family: 'calibri';
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background: url('img/fondoazulgrande.jpg') no-repeat center center fixed;
+    background-size: cover;
+    padding: 20px;
 }
 
-header {
-  background: #03A9F4;
-  width: 100%;
-  clear: both;
-  content:'';
-  display: table;
+.main-menu-container {
+    width: 90%;
+    max-width: 700px;
+    background-color: rgba(30, 40, 50, 0.55);
+    border: 1px solid rgba(255, 255, 255, 0.18); /* Borde del panel principal */
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+    color: white;
+    border-radius: 12px;
+    padding: 30px 35px;
+    text-align: center;
 }
 
-.menu {
-  width: 900px;
-  margin: 0 auto;
+.main-menu-container h1 {
+    font-weight: bold;
+    font-size: 2.1em;
+    text-align: center;
+    margin-bottom: 15px;
+    padding-bottom: 10px;
+    position: relative;
+    background: transparent !important;
 }
 
-img {
-  width: 120px;
-  height: 50px;
-  float: left;
-  padding: 8px;
-
+.main-menu-container h1::after {
+    content: '';
+    display: block;
+    width: 60px;
+    height: 3px;
+    background: white;
+    margin: 8px auto 0;
 }
 
-nav {
-  float: right;
+.welcome-menu, .info-menu {
+    font-size: 1.1em;
+    margin-bottom: 10px;
+    opacity: 0.95;
+    line-height: 1.6;
+    background: transparent !important;
+}
+.info-menu {
+    margin-bottom: 25px;
 }
 
-nav ul li {
-  list-style: none;
-  margin-left: 75px;
-  padding: 12px 0;
-  float: left;
-  position: relative;
+.welcome-menu i {
+    margin-right: 7px;
 }
 
-nav ul li a {
-  text-decoration: none;
-  color: #444;
-  font-weight: bold;
+.username-menu {
+    font-weight: 600;
 }
 
-nav ul li a::before {
-  display: block;
-  content: '';
-  width: 0%;
-  background: #444;
-  height: 5px;
-  top:0;
-  position: absolute;
-  transition: width 0.2s;
+.action-buttons-menu {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 18px; /* Aumentado un poco el gap */
 }
 
-nav ul li a:hover::before {
-  width: 100%;
+/* --- ESTILOS DE BOTONES MEJORADOS --- */
+a.menu-button {
+    background-color: transparent; /* Fondo completamente transparente para el botón */
+    border: 2px solid rgba(255, 255, 255, 0.5); /* Borde blanco más opaco y grueso */
+    color: white;
+    padding: 12px 15px;
+    text-decoration: none;
+    border-radius: 25px; /* Bordes bien redondeados, como en tu login */
+    font-size: 0.95em;
+    font-weight: 500;
+    transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease, transform 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-shadow: 0px 0px 3px rgba(0, 0, 0, 0.4); /* Sombra de texto para legibilidad */
+}
+
+a.menu-button i {
+    margin-right: 10px; /* Espacio entre icono y texto */
+    font-size: 1.1em; /* Icono un poco más grande */
+}
+
+a.menu-button:hover {
+    background-color: rgba(255, 255, 255, 0.2); /* Fondo blanco translúcido al pasar el mouse */
+    border-color: rgba(255, 255, 255, 0.8); /* Borde más opaco al pasar el mouse */
+    color: white; /* El color del texto podría cambiar si el fondo se vuelve muy claro */
+    transform: scale(1.03); /* Un ligero zoom para más feedback */
+}
+
+/* Botón de logout con un estilo que puede ser similar o diferente */
+a.menu-button.logout-menu-button {
+    /* Mantenemos la transparencia pero podemos darle un tinte de color al borde o al hover */
+    border-color: rgba(255, 193, 7, 0.6); /* Borde con tinte amarillo/naranja */
+}
+
+a.menu-button.logout-menu-button:hover {
+    background-color: rgba(255, 193, 7, 0.3); /* Fondo con tinte amarillo/naranja */
+    border-color: rgba(255, 193, 7, 0.8);
+    color: white; /* O un color oscuro si el fondo amarillo se vuelve muy claro */
 }

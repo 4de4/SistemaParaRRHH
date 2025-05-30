@@ -1,45 +1,40 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="icon" href="img/fico.ico" type="imge/x-icon">
-    <title>Menu RRHH</title>
-    <link rel="stylesheet" href="menu.css">
+    <link rel="icon" href="img/fico.ico" type="image/x-icon">
+    <title><?php echo htmlspecialchars($data['titulo_pagina'] ?? 'Panel RRHH'); ?></title>
+    <link rel="stylesheet" href="menu.css"> <!-- Este CSS lo vamos a reescribir -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 </head>
 <body>
     <?php
-    // Es una buena práctica asegurarse que la sesión esté iniciada
-    // if (session_status() == PHP_SESSION_NONE) {
-    //     session_start(); // Descomenta si no estás seguro de que ya está iniciada
-    // }
-    $rol = $_SESSION['rol'] ?? 'default'; // Usar el operador de fusión de null para evitar warnings
+    $nombreUsuario = $data['nombre_usuario'] ?? 'Usuario';
+    $rolUsuario = $data['rol'] ?? 'default';
     ?>
-    <header>
-    <div class="menu">
-      <nav>
-          <ul>
-            <?php if ($rol=='empleado') : ?>
-                <li><a href="crud.php?c=empleado&a=index">Empleados</a></li>
-                <li><a href="crud.php?c=departamento&a=index">Departamentos</a></li>
-            <?php elseif ($rol=='jefe') : ?>
-                <li><a href="crud.php?c=usuario&a=mostrarFormularioRoles">Asignar rol</a></li>
-                <li><a href="crud.php?c=empleado&a=index">Empleados</a></li>
-                <li><a href="crud.php?c=departamento&a=index">Departamentos</a></li>
-                <li><a href="crud.php?c=configuracion&a=index">Configuración DB</a></li>
+
+    <div class="main-menu-container"> <?php // Cambié la clase para evitar conflictos si 'main-container-principal' se usa en otro lado ?>
+        <h1>RECURSOS HUMANOS</h1>
+        <p class="welcome-menu">
+            <i class="fas fa-user-circle"></i> ¡Bienvenido/a, <span class="username-menu"><?php echo htmlspecialchars(ucfirst($nombreUsuario)); ?></span>!
+        </p>
+        <p class="info-menu">Seleccione una opción para continuar:</p>
+
+        <div class="action-buttons-menu">
+            <?php if ($rolUsuario == 'jefe'): ?>
+                <a href="crud.php?c=usuario&a=mostrarFormularioRoles" class="menu-button"><i class="fas fa-user-shield"></i> Asignar Roles</a>
+                <a href="crud.php?c=empleado&a=index" class="menu-button"><i class="fas fa-users"></i> Gestionar Empleados</a>
+                <a href="crud.php?c=departamento&a=index" class="menu-button"><i class="fas fa-building"></i> Gestionar Departamentos</a>
+                <a href="crud.php?c=configuracion&a=index" class="menu-button"><i class="fas fa-cogs"></i> Configuración DB</a>
+            <?php elseif ($rolUsuario == 'empleado'): ?>
+                <a href="crud.php?c=empleado&a=index" class="menu-button"><i class="fas fa-id-card"></i> Ver Mis Datos / Boletas</a>
+                <a href="crud.php?c=departamento&a=index" class="menu-button"><i class="fas fa-info-circle"></i> Ver Departamentos</a>
             <?php endif; ?>
-          </ul>
-      </nav>
+            <a href="index.php?logout=true" class="menu-button logout-menu-button"><i class="fas fa-sign-out-alt"></i> Cerrar Sesión</a>
+        </div>
     </div>
-  </header>
+
+    <?php /* Footer eliminado */ ?>
 </body>
 </html>
-
-
-                      <!-- El empleado común NO debería acceder a la configuración del driver de BD.
-                       Si "Configuracion" para el empleado es para su perfil, necesitará otra ruta y controlador.
-                       Por ahora, se comenta o elimina este enlace para el rol 'empleado' si se refiere a la config de BD.
-                       Si el enlace original `crud.php?c=configuracion&a=index` ya estaba protegido por
-                       `verificarAcceso(['jefe'])` en el ConfiguracionController, entonces el empleado
-                       vería un error de acceso, lo cual también es una forma de manejarlo.
-                       Pero es más limpio no mostrarle la opción si no tiene permiso. -->
