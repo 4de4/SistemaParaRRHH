@@ -1,106 +1,97 @@
 <?php
-// Asegúrate que helpers.php y su función verificarAcceso estén disponibles.
-// Si session_start() no está en helpers.php o crud.php, ponlo aquí.
 if (session_status() == PHP_SESSION_NONE) {
     session_start();
 }
-// require_once "../config/helpers.php"; // Si no está incluido globalmente
 
 class EmpleadoController {
-    private $empleadoModel; // Cambiado nombre de propiedad para claridad
-    // private $db; // La conexión la maneja el modelo
-    // private $change; // El tipo de conexión lo maneja el modelo
+    private $empleadoModel;
+    private $departamentoModel; // Necesitaremos el modelo de departamento
 
     public function __construct(){
         require_once "../models/EmpleadoModel.php";
-        $this->empleadoModel = new EmpleadoModel(); // Usar la propiedad
-        // La conexión a la BD y el tipo (PDO/MySQLi) son manejados por el EmpleadoModel.
+        $this->empleadoModel = new EmpleadoModel();
+
+        // Cargar también el modelo de Departamento
+        require_once "../models/DepartamentoModel.php";
+        $this->departamentoModel = new DepartamentoModel();
     }
 
     public function index(){
         verificarAcceso(['jefe', 'empleado']);
         $data["titulo"] = "Empleados";
-        $data["empleado"] = $this->empleadoModel->get_empleado(); // Usar la propiedad
+        // El EmpleadoModel->get_empleado() ya debería hacer el JOIN con departamento
+        $data["empleado"] = $this->empleadoModel->get_empleado();
 
-        // Para el mensaje PDO/MySQLi (opcional, puede ir en una vista de config o helper)
-        $conexionTemp = Conectar::conexion(); // Obtener una instancia para verificar tipo
+        $conexionTemp = Conectar::conexion();
         if ($conexionTemp) {
             $tipoConexion = get_class($conexionTemp);
-            if ($tipoConexion == 'PDO') {
-                $data["comprobar"] = "Estas trabajando con PDO";
-            } elseif ($tipoConexion == 'mysqli') {
-                $data["comprobar"] = "Estas trabajando con MySQLi";
-            } else {
-                $data["comprobar"] = "Tipo de conexión desconocido";
-            }
-            $conexionTemp = null; // Cerrar o liberar la conexión temporal si es necesario
+            $data["comprobar"] = ($tipoConexion == 'PDO') ? "Trabajando con PDO" : "Trabajando con MySQLi";
+            $conexionTemp = null;
         } else {
             $data["comprobar"] = "Error al obtener tipo de conexión";
         }
-
-
         require_once "../views/empleados/listarempleados.php";
     }
 
     public function nuevo(){
         verificarAcceso(['jefe']);
         $data["titulo"] = "Nuevo Empleado";
-        // Aquí podrías cargar una lista de departamentos si la BD ya está normalizada
-        // require_once "../models/DepartamentoModel.php";
-        // $deptoModel = new DepartamentoModel();
-        // $data['departamentos'] = $deptoModel->get_departamentos();
+        // Cargar la lista de departamentos para el <select>
+        $data['departamentos'] = $this->departamentoModel->get_departamentos();
         require_once "../views/empleados/empleados_nuevo.php";
     }
 
     public function guarda(){
         verificarAcceso(['jefe']);
-        $data["titulo"] = "Empleados"; // Título para la vista si hay error o redirección
+        $data["titulo"] = "Empleados";
 
-        // Validación básica de campos (puedes mejorarla)
         $nombre = trim($_POST['nombre'] ?? '');
         $apellido = trim($_POST['apellido'] ?? '');
         $fecha_nacimiento = $_POST['fecha_nacimiento'] ?? '';
+        // MODIFICADO: Ahora recibimos id_departamento
+        $id_departamento = filter_var($_POST['id_departamento'] ?? '', FILTER_VALIDATE_INT);
+        if(($_POST['id_departamento'] ?? '') === '') $id_departamento = null; // Permitir NULL si se envía vacío
+
         $fecha_inicio_contrato = $_POST['fecha_inicio'] ?? '';
         $fecha_fin_contrato = $_POST['fecha_fin'] ?? '';
-        $salario_base = filter_var($_POST['salario_base'] ?? '', FILTER_VALIDATE_FLOAT);
-        // Para departamento, según tu lógica actual:
-        $nombre_departamento = trim($_POST['nombre_d'] ?? '');
-        $ubicacion_departamento = trim($_POST['ubicacion'] ?? '');
+        $salario_base = filter_input(INPUT_POST, 'salario_base', FILTER_VALIDATE_FLOAT);
+
 
         $errores = [];
         if (empty($nombre)) $errores[] = "El nombre es obligatorio.";
         if (empty($apellido)) $errores[] = "El apellido es obligatorio.";
         if (empty($fecha_nacimiento)) $errores[] = "La fecha de nacimiento es obligatoria.";
-        // ... más validaciones para fechas, salario, etc.
+        // Validación para id_departamento (puedes hacerla más estricta si siempre es requerido)
+        if ($id_departamento === false && $id_departamento !== null) { // Si no es INT válido y no es explícitamente NULL
+             $errores[] = "Departamento no válido.";
+        }
+        // ... más validaciones ...
 
-        // Manejo de la subida de la foto
-        $pathFotoParaBD = null; // Ruta que se guardará en la BD (solo nombre de archivo o ruta relativa)
+        $pathFotoParaBD = null;
         $nombreArchivoFoto = null;
 
         if (isset($_FILES['foto']) && $_FILES['foto']['error'] == UPLOAD_ERR_OK) {
+            // ... (tu lógica de subida de foto se mantiene igual) ...
             $fotoInfo = $_FILES['foto'];
             $nombreArchivoFoto = basename($fotoInfo["name"]);
-            $directorioDestino = $_SERVER['DOCUMENT_ROOT'] . '/SistemaParaRRHH/views/fotos/'; // Asegúrate que esta ruta sea correcta y con permisos de escritura
+            $directorioDestino = $_SERVER['DOCUMENT_ROOT'] . '/SistemaParaRRHH/views/fotos/';
             $rutaArchivoDestino = $directorioDestino . $nombreArchivoFoto;
             $tipoArchivo = strtolower(pathinfo($rutaArchivoDestino, PATHINFO_EXTENSION));
             $tamañoArchivo = $fotoInfo["size"];
 
-            // Crear directorio si no existe (buena práctica)
             if (!is_dir($directorioDestino)) {
                 mkdir($directorioDestino, 0775, true);
             }
 
-            // Validaciones de la foto
             $tiposPermitidos = ['jpg', 'jpeg', 'png', 'gif'];
             if (!in_array($tipoArchivo, $tiposPermitidos)) {
                 $errores[] = "Tipo de archivo no permitido para la foto (solo JPG, JPEG, PNG, GIF).";
             }
-            if ($tamañoArchivo > 2 * 1024 * 1024) { // 2MB
+            if ($tamañoArchivo > 2 * 1024 * 1024) {
                 $errores[] = "El tamaño de la foto no debe exceder los 2MB.";
             }
 
-            if (empty($errores)) { // Solo intentar mover si no hay errores previos ni de validación de foto
-                // Evitar sobrescribir si ya existe un archivo con el mismo nombre (puedes añadir un prefijo único)
+            if (empty($errores)) {
                 $contador = 0;
                 $nombreArchivoOriginal = pathinfo($nombreArchivoFoto, PATHINFO_FILENAME);
                 while (file_exists($directorioDestino . $nombreArchivoFoto)) {
@@ -110,59 +101,54 @@ class EmpleadoController {
                 $rutaArchivoDestino = $directorioDestino . $nombreArchivoFoto;
 
                 if (move_uploaded_file($fotoInfo["tmp_name"], $rutaArchivoDestino)) {
-                    // Foto subida con éxito, guardar solo el nombre del archivo en la BD
                     $pathFotoParaBD = $nombreArchivoFoto;
                 } else {
                     $errores[] = "Error al subir la foto. Verifique permisos en el directorio 'fotos'.";
                 }
             }
-        } elseif (isset($_FILES['foto']) && $_FILES['foto']['error'] != UPLOAD_ERR_NO_FILE) {
-            // Hubo un error diferente a "no se subió archivo"
+        } elseif (isset($_FILES['foto']) && $_FILES['foto']['error'] != UPLOAD_ERR_NO_FILE && $_FILES['foto']['error'] != UPLOAD_ERR_INI_SIZE) {
             $errores[] = "Error al procesar el archivo de la foto. Código: " . $_FILES['foto']['error'];
         }
-        // Si el campo foto era 'required' en el HTML y no se subió, deberías añadir un error.
-        // Tu HTML tiene `required` para foto.
-        if (empty($pathFotoParaBD) && (!isset($_FILES['foto']) || $_FILES['foto']['error'] == UPLOAD_ERR_NO_FILE) ) {
-             // Si es un nuevo empleado y la foto es requerida
-            if(empty($_POST['id_e'])) { // Solo para nuevos, para modificar puede no subirse foto nueva
-                 $errores[] = "La foto es obligatoria.";
+        
+        if (empty($pathFotoParaBD) && (empty($_POST['id_e'])) && (!isset($_FILES['foto']) || $_FILES['foto']['error'] == UPLOAD_ERR_NO_FILE || $_FILES['foto']['error'] == UPLOAD_ERR_INI_SIZE) ) {
+            if(empty($_POST['id_e'])) {
+                 $errores[] = "La foto es obligatoria para nuevos empleados.";
             }
         }
 
 
         if (!empty($errores)) {
-            // Hay errores, volver al formulario de nuevo empleado mostrando los errores
             $data["titulo"] = "Nuevo Empleado";
             $data["errores"] = $errores;
-            // Pasar los datos ingresados de vuelta al formulario para no perderlos
             $data['input'] = $_POST;
+            // Volver a cargar departamentos para el formulario
+            $data['departamentos'] = $this->departamentoModel->get_departamentos();
             require_once "../views/empleados/empleados_nuevo.php";
-            return; // Detener ejecución
+            return;
         }
 
-        // Si no hay errores, proceder a guardar en la BD
+        // MODIFICADO: Pasar $id_departamento al modelo
+        // Ya no se pasan nombre_departamento ni ubicacion_departamento
         $exito = $this->empleadoModel->set_Empleado(
             $nombre,
             $apellido,
-            $pathFotoParaBD, // Solo el nombre del archivo
+            $pathFotoParaBD,
             $fecha_nacimiento,
+            $id_departamento, // ID del departamento seleccionado
             $fecha_inicio_contrato,
             $fecha_fin_contrato,
-            $salario_base,
-            $nombre_departamento,
-            $ubicacion_departamento
+            (float)$salario_base // Asegurar que es float
         );
 
         if ($exito) {
-            // Redirigir al listado con mensaje de éxito (usar sesiones para mensajes flash es mejor)
             $_SESSION['mensaje_exito'] = "Empleado guardado correctamente.";
             header("Location: crud.php?c=empleado&a=index");
             exit();
         } else {
-            // Error al guardar en BD
             $data["titulo"] = "Nuevo Empleado";
             $data["errores"] = ["Hubo un error al guardar el empleado en la base de datos."];
             $data['input'] = $_POST;
+            $data['departamentos'] = $this->departamentoModel->get_departamentos();
             require_once "../views/empleados/empleados_nuevo.php";
         }
     }
@@ -170,12 +156,12 @@ class EmpleadoController {
 
     public function modificar($id_e = null){
         verificarAcceso(['jefe']);
-        if ($id_e === null && isset($_GET['id'])) { // Compatibilidad si el ID viene por GET 'id'
+        // ... (tu lógica para obtener id_e se mantiene) ...
+        if ($id_e === null && isset($_GET['id'])) {
             $id_e = filter_var($_GET['id'], FILTER_VALIDATE_INT);
         } elseif ($id_e !== null) {
             $id_e = filter_var($id_e, FILTER_VALIDATE_INT);
         }
-
 
         if (!$id_e) {
             $_SESSION['mensaje_error'] = "ID de empleado no válido.";
@@ -192,16 +178,15 @@ class EmpleadoController {
         }
 
         $data["titulo"] = "Modificar Empleado";
-        $data["empleado_data"] = $empleado; // Pasar los datos del empleado a la vista
-        // Aquí también podrías cargar la lista de departamentos si es necesario
-        // $data['departamentos'] = $this->departamentoModel->get_departamentos();
-        require_once "../views/empleados/empleados_modificar.php"; // Nueva vista
+        $data["empleado_data"] = $empleado;
+        // Cargar la lista de departamentos para el <select>
+        $data['departamentos'] = $this->departamentoModel->get_departamentos();
+        require_once "../views/empleados/empleados_modificar.php";
     }
 
     public function actualizar(){
         verificarAcceso(['jefe']);
-        $data["titulo"] = "Modificar Empleado"; // Para errores
-
+        // ... (tu lógica para obtener datos del POST se mantiene, pero ajustamos para id_departamento) ...
         if (!isset($_POST['id_e'])) {
             $_SESSION['mensaje_error'] = "ID de empleado no proporcionado para actualizar.";
             header("Location: crud.php?c=empleado&a=index");
@@ -212,47 +197,55 @@ class EmpleadoController {
         $nombre = trim($_POST['nombre'] ?? '');
         $apellido = trim($_POST['apellido'] ?? '');
         $fecha_nacimiento = $_POST['fecha_nacimiento'] ?? '';
+        // MODIFICADO: Ahora recibimos id_departamento
+        $id_departamento = filter_var($_POST['id_departamento'] ?? '', FILTER_VALIDATE_INT);
+        if(($_POST['id_departamento'] ?? '') === '') $id_departamento = null;
+
+
         $fecha_inicio_contrato = $_POST['fecha_inicio'] ?? '';
         $fecha_fin_contrato = $_POST['fecha_fin'] ?? '';
-        $salario_base = filter_var($_POST['salario_base'] ?? '', FILTER_VALIDATE_FLOAT);
-        $nombre_departamento = trim($_POST['nombre_d'] ?? '');
-        $ubicacion_departamento = trim($_POST['ubicacion'] ?? '');
-        $foto_actual = $_POST['foto_actual'] ?? null; // Para mantener la foto si no se sube una nueva
+        $salario_base = filter_input(INPUT_POST, 'salario_base', FILTER_VALIDATE_FLOAT);
+        $foto_actual = $_POST['foto_actual'] ?? null;
 
         $errores = [];
         if (!$id_e) $errores[] = "ID de empleado inválido.";
         if (empty($nombre)) $errores[] = "El nombre es obligatorio.";
+        if ($id_departamento === false && $id_departamento !== null) {
+             $errores[] = "Departamento no válido.";
+        }
         // ... más validaciones ...
 
-        $pathFotoParaBD = $foto_actual; // Por defecto, mantener la foto actual si no se sube una nueva
+        $pathFotoParaBD = $foto_actual;
         $nombreArchivoFotoNueva = null;
 
         if (isset($_FILES['foto']) && $_FILES['foto']['error'] == UPLOAD_ERR_OK) {
+            // ... (tu lógica de subida de foto se mantiene igual) ...
             $fotoInfo = $_FILES['foto'];
             $nombreArchivoFotoNueva = basename($fotoInfo["name"]);
             $directorioDestino = $_SERVER['DOCUMENT_ROOT'] . '/SistemaParaRRHH/views/fotos/';
-            $rutaArchivoDestino = $directorioDestino . $nombreArchivoFotoNueva;
+            // ... (resto de la lógica de subida)
+            if (!is_dir($directorioDestino)) mkdir($directorioDestino, 0775, true);
+            $rutaArchivoDestino = $directorioDestino . $nombreArchivoFotoNueva; // Path antes de verificar duplicados
             $tipoArchivo = strtolower(pathinfo($rutaArchivoDestino, PATHINFO_EXTENSION));
             $tamañoArchivo = $fotoInfo["size"];
-
-            if (!is_dir($directorioDestino)) mkdir($directorioDestino, 0775, true);
-
             $tiposPermitidos = ['jpg', 'jpeg', 'png', 'gif'];
+
             if (!in_array($tipoArchivo, $tiposPermitidos)) $errores[] = "Tipo de archivo no permitido.";
             if ($tamañoArchivo > 2 * 1024 * 1024) $errores[] = "Tamaño de archivo excede 2MB.";
 
             if (empty($errores)) {
                 $contador = 0;
-                $nombreArchivoOriginal = pathinfo($nombreArchivoFotoNueva, PATHINFO_FILENAME);
-                while (file_exists($directorioDestino . $nombreArchivoFotoNueva)) {
+                $nombreBase = pathinfo($nombreArchivoFotoNueva, PATHINFO_FILENAME);
+                $extension = pathinfo($nombreArchivoFotoNueva, PATHINFO_EXTENSION);
+                $nombreFinalArchivo = $nombreArchivoFotoNueva;
+                while (file_exists($directorioDestino . $nombreFinalArchivo)) {
                     $contador++;
-                    $nombreArchivoFotoNueva = $nombreArchivoOriginal . "_" . $contador . "." . $tipoArchivo;
+                    $nombreFinalArchivo = $nombreBase . "_" . $contador . "." . $extension;
                 }
-                $rutaArchivoDestino = $directorioDestino . $nombreArchivoFotoNueva;
+                $rutaArchivoDestino = $directorioDestino . $nombreFinalArchivo;
 
                 if (move_uploaded_file($fotoInfo["tmp_name"], $rutaArchivoDestino)) {
-                    $pathFotoParaBD = $nombreArchivoFotoNueva; // Nueva foto subida
-                    // Opcional: borrar la foto anterior si $foto_actual existe y es diferente
+                    $pathFotoParaBD = $nombreFinalArchivo;
                     if ($foto_actual && $foto_actual != $pathFotoParaBD && file_exists($directorioDestino . $foto_actual)) {
                         unlink($directorioDestino . $foto_actual);
                     }
@@ -260,30 +253,34 @@ class EmpleadoController {
                     $errores[] = "Error al subir la nueva foto.";
                 }
             }
-        } elseif (isset($_FILES['foto']) && $_FILES['foto']['error'] != UPLOAD_ERR_NO_FILE) {
+        } elseif (isset($_FILES['foto']) && $_FILES['foto']['error'] != UPLOAD_ERR_NO_FILE && $_FILES['foto']['error'] != UPLOAD_ERR_INI_SIZE) {
             $errores[] = "Error al procesar archivo de foto. Código: " . $_FILES['foto']['error'];
         }
 
+
         if (!empty($errores)) {
+            $data["titulo"] = "Modificar Empleado";
             $data["errores"] = $errores;
-            $data["empleado_data"] = $_POST; // Re-poblar formulario con datos ingresados
+            $data["empleado_data"] = $_POST;
             $data["empleado_data"]['id_e'] = $id_e; // Asegurar que el ID se mantenga
-            if(isset($foto_actual)) $data["empleado_data"]['foto'] = $foto_actual; // Mantener el nombre de la foto actual para la vista
+            if(isset($foto_actual)) $data["empleado_data"]['foto'] = $foto_actual;
+            $data['departamentos'] = $this->departamentoModel->get_departamentos();
             require_once "../views/empleados/empleados_modificar.php";
             return;
         }
 
+        // MODIFICADO: Pasar $id_departamento al modelo
+        // Ya no se pasan nombre_departamento ni ubicacion_departamento
         $exito = $this->empleadoModel->update_Empleado(
             $id_e,
             $nombre,
             $apellido,
-            ($nombreArchivoFotoNueva !== null) ? $pathFotoParaBD : $foto_actual, // Pasar la nueva foto o la actual
+            ($nombreArchivoFotoNueva !== null) ? $pathFotoParaBD : $foto_actual,
             $fecha_nacimiento,
+            $id_departamento, // ID del departamento seleccionado
             $fecha_inicio_contrato,
             $fecha_fin_contrato,
-            $salario_base,
-            $nombre_departamento,
-            $ubicacion_departamento
+            (float)$salario_base // Asegurar que es float
         );
 
         if ($exito) {
@@ -291,16 +288,18 @@ class EmpleadoController {
             header("Location: crud.php?c=empleado&a=index");
             exit();
         } else {
-            $data["errores"] = ["Hubo un error al actualizar el empleado."];
-            $data["empleado_data"] = $_POST;
+            $data["titulo"] = "Modificar Empleado";
+            $data["errores"] = ["Hubo un error al actualizar el empleado o no hubo cambios."];
+            $data["empleado_data"] = $_POST; // Usar $_POST para repoblar
             $data["empleado_data"]['id_e'] = $id_e;
             if(isset($foto_actual)) $data["empleado_data"]['foto'] = $foto_actual;
+            $data['departamentos'] = $this->departamentoModel->get_departamentos();
             require_once "../views/empleados/empleados_modificar.php";
         }
     }
 
-
-    public function eliminar($id_e = null){
+    // Tus métodos eliminar() y verBoleta() se mantienen igual por ahora.
+    public function eliminar($id_e = null){ // ... (código existente) ...
         verificarAcceso(['jefe']);
          if ($id_e === null && isset($_GET['id'])) {
             $id_e = filter_var($_GET['id'], FILTER_VALIDATE_INT);
@@ -313,21 +312,8 @@ class EmpleadoController {
             header("Location: crud.php?c=empleado&a=index");
             exit();
         }
-
-        // Opcional: obtener el nombre de la foto para borrarla del servidor ANTES de borrar de BD
-        // $empleado = $this->empleadoModel->get_empleado_por_id($id_e);
-        // $foto_a_borrar = ($empleado && !empty($empleado['foto'])) ? $empleado['foto'] : null;
-
         $exito = $this->empleadoModel->eliminar($id_e);
-
         if ($exito) {
-            // if ($foto_a_borrar) {
-            //     $directorioDestino = $_SERVER['DOCUMENT_ROOT'] . '/SistemaParaRRHH/views/fotos/';
-            //     if (file_exists($directorioDestino . $foto_a_borrar)) {
-            //         unlink($directorioDestino . $foto_a_borrar);
-            //     }
-            // }
-            // La lógica de borrar la foto ya está en el modelo EmpleadoModel::eliminar()
             $_SESSION['mensaje_exito'] = "Empleado eliminado correctamente.";
         } else {
             $_SESSION['mensaje_error'] = "Error al eliminar el empleado.";
@@ -336,47 +322,33 @@ class EmpleadoController {
         exit();
     }
 
-    // Pendiente: acción para verBoleta
-    public function verBoleta($id_empleado = null){
-        verificarAcceso(['jefe', 'empleado']); // O quien pueda ver boletas
+    public function verBoleta($id_empleado = null){ // ... (código existente) ...
+        verificarAcceso(['jefe', 'empleado']);
         if ($id_empleado === null && isset($_GET['id_empleado'])) {
             $id_empleado = filter_var($_GET['id_empleado'], FILTER_VALIDATE_INT);
         } elseif ($id_empleado !== null) {
             $id_empleado = filter_var($id_empleado, FILTER_VALIDATE_INT);
         }
 
-
         if (!$id_empleado) {
              $_SESSION['mensaje_error'] = "ID de empleado no válido para ver boleta.";
             header("Location: crud.php?c=empleado&a=index");
             exit();
         }
-
-        // Si es un rol 'empleado', solo permitir ver su propia boleta
         if ($_SESSION['rol'] == 'empleado') {
-            // Necesitarías una forma de obtener el id_e del usuario logueado si es un empleado
-            // Esto es un ejemplo, requeriría que $_SESSION['empleado_id_bd'] se establezca en el login
-            // if (!isset($_SESSION['empleado_id_bd']) || $_SESSION['empleado_id_bd'] != $id_empleado) {
-            //     $_SESSION['mensaje_error'] = "No tiene permisos para ver esta boleta.";
-            //     header("Location: crud.php?c=empleado&a=index");
-            //     exit();
-            // }
-            echo "Lógica para rol empleado viendo su propia boleta PENDIENTE.";
-            // Por ahora, permitimos si tiene acceso general.
+            // Aquí deberías comparar $id_empleado con el ID del empleado asociado al $_SESSION['usuario_id']
+            // Esta lógica es un poco más compleja y requiere obtener el id_e del usuario actual.
+            // Por ahora, se simplifica.
+            // echo "Lógica para rol empleado viendo su propia boleta PENDIENTE.";
         }
-
-
         $empleado = $this->empleadoModel->get_empleado_por_id($id_empleado);
         if (!$empleado) {
             $_SESSION['mensaje_error'] = "Empleado no encontrado para generar boleta.";
             header("Location: crud.php?c=empleado&a=index");
             exit();
         }
-
         $data['titulo'] = "Boleta de Pago - " . htmlspecialchars($empleado['nombre'] . " " . $empleado['apellido']);
         $data['empleado'] = $empleado;
-        // Aquí cargarías una vista específica para la boleta:
-        // require_once "../views/empleados/boleta_empleado.php";
         echo "<pre>Vista de Boleta para Empleado ID: " . htmlspecialchars($id_empleado) . "\n";
         print_r($empleado);
         echo "</pre>";
