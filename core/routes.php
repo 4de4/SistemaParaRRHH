@@ -16,6 +16,7 @@ function cargarControlador($controlador){
 	$control = new $nombreControlador();//creando el objeto
 	return $control;
 }
+
 function cargarAccion($controller, $accion, $id = null){
 	if(isset($accion) && method_exists($controller, $accion)){
 		if($id == null){

@@ -25,4 +25,60 @@ class EmpleadoController {
         require_once "../views/empleados/empleados.php";
     }
 
+    //FUNCION NUEVO
+    public function nuevo(){
+        $data["titulo"] = "Empleados";
+        require_once "../views/empleados/empleados_nuevo.php";
+    }
+
+    //FUNCION GUARDA()
+    public function guarda(){
+
+        if(((isset($_REQUEST['nombre']))&&($_REQUEST['nombre']!=''))&&((isset($_REQUEST['apellido']))&&($_POST['apellido']!=''))&&
+        ((isset($_FILES['foto']))&&($_FILES['foto']['error'] == 0))&&((isset($_REQUEST['fecha_nacimiento']))&&($_REQUEST['fecha_nacimiento']!=''))
+        &&((isset($_REQUEST['fecha_inicio']))&&($_REQUEST['fecha_inicio']!=''))&&((isset($_REQUEST['fecha_fin']))&&($_REQUEST['fecha_fin']!=''))
+        &&((isset($_REQUEST['salario_base']))&&($_REQUEST['salario_base']!=''))&&((isset($_REQUEST['nombre_d']))&&($_REQUEST['nombre_d']!=''))
+        &&((isset($_REQUEST['ubicacion']))&&($_REQUEST['ubicacion']!='')))
+        {
+            $empleado= new EmpleadoModel();
+            $empleado->set_Empleado($_REQUEST['nombre'],$_REQUEST['apellido'],$_FILES['foto'],$_REQUEST['fecha_nacimiento'],
+            $_REQUEST['fecha_inicio'],$_REQUEST['fecha_fin'],$_REQUEST['salario_base'],$_REQUEST['nombre_d'],$_REQUEST['ubicacion']);
+        }
+        $data["titulo"] = "Empleados";
+        $this->index();
+
+        // $nombre = $_POST['nombre'];
+        // $apellido = $_POST['apellido'];
+        // $foto = $_FILES['foto']['error'];
+        // $fecha_nacimiento = $_POST['fecha_nacimiento'];
+        // $fecha_inicio = $_POST['fecha_inicio'];
+        // $fecha_fin = $_POST['fecha_fin'];
+        // $salario_base = $_POST['salario_base'];
+        // $nombre_d = $_POST['nombre_d'];
+        // $ubicacion = $_POST['ubicacion'];
+        // $empleado = new EmpleadoModel();
+        // $empleado->set_Empleado($nombre, $apellido, $foto, $fecha_nacimiento,$fecha_inicio,$fecha_fin,$salario_base,$nombre_d,$ubicacion);
+        // $data["titulo"] = "Empleados";
+        // $this->index();
+    }
+
+    //METODO MODIFICAR
+
+
+    //METODO ELIMINAR
+    public function eliminar($id){
+
+        // if((isset($_GET[$id_e]))&&($_GET[$id_e]!='')){
+        //     $empleado=new EmpleadoModel();
+        //     $empleado->eliminar($_GET[$id_e]);
+        //     $data["titulo"] = "Empleados";
+        //     $this->index();
+        // }
+
+        $empleado = new EmpleadoModel();
+        $empleado->eliminar($id);
+        $data["titulo"] = "Empleados";
+        $this->index();
+	}
+
 }
