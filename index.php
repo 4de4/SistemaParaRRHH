@@ -34,12 +34,12 @@
             <div class="text">
                 <i class="fa-solid fa-user"></i>
                 <label for="">Usuario:</label>
-                <input type="text" placeholder="Ingrese su usuario..." name="username">
+                <input type="text" placeholder="Ingrese su usuario..." name="Username">
             </div>
             <div class="text">
                 <i class="fa-solid fa-unlock"></i>
                 <label for="">Contraseña:</label>
-                <input type="password" placeholder="Ingrese su contraseña..." name="password">
+                <input type="password" placeholder="Ingrese su contraseña..." name="Password">
             </div>
             
             <button type="submit" class="btn">Iniciar Sesión</button>
