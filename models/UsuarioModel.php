@@ -35,8 +35,6 @@
                 return $this->guardar;
             }
             return [];
-            
-            
         }
 
         public function Registrar($username,$password){

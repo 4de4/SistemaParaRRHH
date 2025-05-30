@@ -19,7 +19,7 @@
             border-collapse: collapse;
             margin-top: 20px;
             border-radius: 30px;
-            backcolor: rgba(255, 255, 255, 0.8);
+            background-color: rgba(255, 255, 255, 0.8);
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
         }
     </style>
