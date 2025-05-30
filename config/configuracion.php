@@ -1,5 +1,5 @@
 <?php
-session_start();
+//session_start();
 
 if (isset($_POST['conexion'])) {
     $_SESSION['db_driver'] = $_POST['conexion']; // 'pdo' o 'mysqli'

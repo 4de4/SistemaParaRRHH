@@ -1,3 +1,59 @@
+<?php
+// Asegúrate que session_start() se llama ANTES de cualquier uso de $_SESSION
+// Si helpers.php lo tiene al inicio, y se incluye antes, está bien.
+// O colócalo aquí si es más seguro:
+if (session_status() == PHP_SESSION_NONE) {
+    session_start();
+}
+
+require_once "../config/define.php";
+require_once "../core/routes.php";
+require_once "../config/database.php";
+require_once "../helpers.php"; // Asumiendo que está en la raíz (junto a index.php)
+
+// Lista de controladores y acciones públicas (que no requieren login)
+$acciones_publicas = [
+    // Controlador 'usuario' (en minúsculas para comparación)
+    'usuario' => [
+        'iniciar',      // Acción para procesar el login
+        'registrarse'   // Acción para procesar el formulario de registro
+    ],
+    // Podrías añadir otras si las tuvieras, ej: 'password' => ['solicitarReseteo', 'resetear']
+];
+
+$controlador_solicitado = isset($_GET['c']) ? strtolower($_GET['c']) : strtolower(CONTROLADOR_PRINCIPAL);
+$accion_solicitada = isset($_GET['a']) ? strtolower($_GET['a']) : strtolower(ACCION_PRINCIPAL);
+
+$es_accion_publica = false;
+if (isset($acciones_publicas[$controlador_solicitado]) &&
+    in_array($accion_solicitada, $acciones_publicas[$controlador_solicitado])) {
+    $es_accion_publica = true;
+}
+
+// Si la acción NO es pública, entonces verificamos el acceso
+if (!$es_accion_publica) {
+    verificarAcceso(); // Proteger solo las rutas/acciones que no son públicas
+}
+
+// --- Resto del código de enrutamiento en crud.php ---
+if(isset($_GET['c'])){
+    $controlador = cargarControlador($_GET['c']); // El nombre original, no el minúsculas
+    if(isset($_GET['a'])){
+        $id = null; // Inicializar ID
+        if(isset($_GET['id_u'])){ $id = $_GET['id_u']; }
+        elseif(isset($_GET['id_e'])){ $id = $_GET['id_e']; } // Para empleados
+        elseif(isset($_GET['id'])){ $id = $_GET['id']; } // Genérico
+        cargarAccion($controlador, $_GET['a'], $id);
+    } else {
+        cargarAccion($controlador, ACCION_PRINCIPAL);
+    }
+} else {
+    $controlador = cargarControlador(CONTROLADOR_PRINCIPAL);
+    $accionTmp = ACCION_PRINCIPAL;
+    $controlador->$accionTmp();
+}
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>

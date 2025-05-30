@@ -2,22 +2,41 @@ create database rr_hh;
 
 use rr_hh;
 
-create table empleado(id_e int auto_increment primary key,
-nombre varchar (100) not null, apellido varchar(100) not null,
-fecha_nacimiento date not null, 
-edad int generated always as (TIMESTAMPDIFF(YEAR, fecha_nacimiento, CURDATE())),
-foto varchar(255) not null);
+-- Tabla departamento (independiente)
+CREATE TABLE departamento (
+    id_d INT AUTO_INCREMENT PRIMARY KEY,
+    nombre VARCHAR(60) NOT NULL UNIQUE,
+    ubicacion VARCHAR(100) NOT NULL
+);
 
-create table contrato(id_c int primary key not null, fecha_inicio date not null,
-fecha_fin date not null, salario_base decimal(12,2) not null, 
-antiguedad int GENERATED ALWAYS AS(TIMESTAMPDIFF(YEAR, fecha_inicio, CURDATE())), 
-bono decimal(12,2) GENERATED ALWAYS AS (0.05 * salario_base * antiguedad), 
-duracion int GENERATED ALWAYS AS (TIMESTAMPDIFF(MONTH, fecha_inicio, fecha_fin)),
-foreign key(id_c) references empleado(id_e));
+-- Tabla empleado (con FK a departamento)
+CREATE TABLE empleado (
+    id_e INT AUTO_INCREMENT PRIMARY KEY,
+    nombre VARCHAR(100) NOT NULL,
+    apellido VARCHAR(100) NOT NULL,
+    fecha_nacimiento DATE NOT NULL,
+    edad INT GENERATED ALWAYS AS (TIMESTAMPDIFF(YEAR, fecha_nacimiento, CURDATE())),
+    foto VARCHAR(255), -- Puede ser NULL si no es obligatoria al inicio
+    id_departamento INT, -- Clave foránea
+    FOREIGN KEY (id_departamento) REFERENCES departamento(id_d)
+);
 
-create table usuario(id_u int auto_increment primary key,
-username varchar(30) not null, password varchar(30) not null, 
-rol varchar(60) not null);
+-- Contrato sigue igual, referenciando empleado.id_e
+CREATE TABLE contrato (
+    id_c INT PRIMARY KEY NOT NULL, -- Generalmente es id_empleado
+    fecha_inicio DATE NOT NULL,
+    fecha_fin DATE NOT NULL,
+    salario_base DECIMAL(12,2) NOT NULL,
+    antiguedad INT GENERATED ALWAYS AS (TIMESTAMPDIFF(YEAR, fecha_inicio, CURDATE())),
+    bono DECIMAL(12,2) GENERATED ALWAYS AS (0.05 * salario_base * antiguedad),
+    duracion INT GENERATED ALWAYS AS (TIMESTAMPDIFF(MONTH, fecha_inicio, fecha_fin)),
+    FOREIGN KEY(id_c) REFERENCES empleado(id_e) ON DELETE CASCADE ON UPDATE CASCADE -- Añadir ON DELETE/UPDATE
+);
 
-create table departamento(id_d int primary key not null, nombre varchar(60) not null, 
-ubicacion varchar(100) not null, foreign key(id_d) references empleado(id_e));
+-- Usuario sigue igual (pero recuerda hashear password)
+CREATE TABLE usuario (
+    id_u INT AUTO_INCREMENT PRIMARY KEY,
+    username VARCHAR(30) NOT NULL UNIQUE, -- Username debería ser único
+    password VARCHAR(255) NOT NULL, -- Para password hasheada
+    rol VARCHAR(60) NOT NULL DEFAULT 'usuario' -- Rol por defecto
+);
