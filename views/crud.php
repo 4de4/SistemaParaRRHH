@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" href="img/fico.ico" type="imge/x-icon">
+    <title>Crud...</title>
     <style>
         *{
             margin: 0;
@@ -19,7 +20,7 @@
             border-collapse: collapse;
             margin-top: 20px;
             border-radius: 30px;
-            background-color: rgba(255, 255, 255, 0.8);
+            background-color: rgba(153, 191, 211, 0.8);
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
         }
     </style>
