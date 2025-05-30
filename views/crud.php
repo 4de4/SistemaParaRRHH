@@ -39,8 +39,8 @@
                 // El método cargarControlador esta en el archivo routes.php
                 $controlador = cargarControlador($_GET['c']);//se crea el controlador
                 if(isset($_GET['a'])){//si existe a(accion) se verifica si tiene id
-                    if(isset($_GET['id_u'])){
-                        cargarAccion($controlador, $_GET['a'], $_GET['id_u']); //para modificar o eliminar
+                    if(isset($_GET['id'])){
+                        cargarAccion($controlador, $_GET['a'], $_GET['id']); //para modificar o eliminar
                     }else{//existe "id" cargara la accion
                         cargarAccion($controlador, $_GET['a']); //para nuevo
                     }

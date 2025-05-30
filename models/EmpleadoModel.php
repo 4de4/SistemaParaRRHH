@@ -17,8 +17,7 @@ class EmpleadoModel {
     public function get_empleado()
 	{
         if ($this->change=='PDO') {
-        $pst=$this->db->prepare("SELECT e.*, c.*, d.* FROM empleado e INNER JOIN contrato c ON
-             e.id_e = c.id_c INNER JOIN departamento d ON e.id_e = d.id_d");
+        $pst=$this->db->prepare("SELECT * FROM empleado");
             $pst->execute();
             $resultados=$pst->fetchAll(\PDO::FETCH_ASSOC);
 
@@ -28,11 +27,10 @@ class EmpleadoModel {
             }
             
         }elseif ($this->change=='mysqli') {
-            $pst=$this->db->prepare("SELECT e.*, c.*, d.* FROM empleado e INNER JOIN contrato c ON
-             e.id_e = c.id_c INNER JOIN departamento d ON e.id_e = d.id_d");
+            $pst=$this->db->prepare("SELECT * FROM empleado");
             $pst->execute();
             $res=$pst->get_result();
-            $resultados=$res->fetch_All(MYSQLI_ASSOC);
+            $resultados=$res->fetch_all(MYSQLI_ASSOC);
             foreach($resultados as $resultado){
                 $this->empleado[]=$resultado;
             }
@@ -40,9 +38,8 @@ class EmpleadoModel {
           
             return $this->empleado;
 	}
-
     //METODO INSERTAR
-    public function set_Empleado($nombre,$apellido,$foto,$fecha_nacimiento,$fecha_inicio,$fecha_fin,$salario_base,$nombre_d,$ubicacion){			
+    public function set_Empleado($nombre,$apellido,$foto,$fecha_nacimiento){			
 		$dif_destino='/SistemaParaRRHH/views/fotos/';
         $foto=$dif_destino.basename($_FILES['foto']['name']);
 
@@ -56,69 +53,24 @@ class EmpleadoModel {
             $resultado_emp=$pst_e->execute();
 
             if ($resultado_emp) {
-                // Obtiene el último ID insertado
-                $idEmpleado = $this->db->lastInsertId();
-
-                $pst_c=$this->db->prepare("INSERT INTO contrato(id_c, fecha_inicio, fecha_fin, salario_base)VALUES(?,?,?,?)");
-                $pst_c->bindParam(1,$idEmpleado);
-                $pst_c->bindParam(2,$fecha_inicio);
-                $pst_c->bindParam(3,$fecha_fin);
-                $pst_c->bindParam(4,$salario_base);
-                $resultado_con=$pst_c->execute();
-                
-                if($resultado_con){
-                    $pst_d=$this->db->prepare("INSERT INTO departamento(id_d, nombre_d, ubicacion)VALUES(?,?,?)");
-                    $pst_d->bindParam(1,$idEmpleado);
-                    $pst_d->bindParam(2,$nombre_d);
-                    $pst_d->bindParam(3,$ubicacion);
-                    $resultado_dep=$pst_d->execute();
-
-                    if($resultado_con && $resultado_dep){
-                        return true;
-                    }
-                }
-                
+                return true;
             }else{
                 return false;
             }
-             // Si algo falla, retorna false
-            
             // Cierra la conexión
             $this->db = null;
             
         }elseif($this->change=='mysqli'){
 
-            // $pst=$this->db->prepare("insert into empleado(nombre,apellido,fecha_nacimiento,foto)values(?,?,?,?)");
-            // $pst->bind_Param('ssdi',$nombre,$apellido,$descripcion,$precio,$stock);  
-            // $resultado_emp=$pst->execute(); 
-
             $pst_e=$this->db->prepare("INSERT INTO empleado(nombre, apellido, fecha_nacimiento, foto)VALUES(?,?,?,?)");
-            $pst_e->bind_Param('ssis',$nombre,$apellido,$fecha_nacimiento,$foto);
+            $pst_e->bind_Param('ssss',$nombre,$apellido,$fecha_nacimiento,$foto);
             $resultado_emp=$pst_e->execute();
 
             if ($resultado_emp) {
-                // Obtiene el último ID insertado
-                $idEmpleado = $this->db->insert_id;
-
-                $pst_c=$this->db->prepare("INSERT INTO contrato(id_c, fecha_inicio, fecha_fin, salario_base)VALUES(?,?,?,?)");
-                $pst_c->bind_Param('iiid',$idEmpleado,$fecha_inicio,$fecha_fin,$salario_base); 
-                $resultado_con=$pst_c->execute();
-
-                if($resultado_con){
-                    $pst_d=$this->db->prepare("INSERT INTO departamento(id_d, nombre_d, ubicacion)VALUES(?,?,?)");
-                    $pst_d->bind_Param('iss',$idEmpleado,$nombre_d,$ubicacion); 
-                    $resultado_dep=$pst_d->execute();
-
-                    if($resultado_con && $resultado_dep){
-                        return true;
-                    }
-                }
-            
+                return true;
             }else{
                 return false;
             }
-             // Si algo falla, retorna false
-            
             // Cierra la conexión
             $this->db = null;
         }
@@ -130,30 +82,28 @@ class EmpleadoModel {
         $foto=$dif_destino.basename($_FILES['foto']['name']);
 
         if($this->change=='PDO'){
-
-            $pst_e=$this->db->prepare("INSERT INTO empleado(nombre, apellido, fecha_nacimiento, foto)VALUES(?,?,?,?)");
+                
+            $pst_e=$this->db->prepare("update empleado set nombre=?,apellido=?,fecha_nacimiento=?,foto=? where id=?");
             $pst_e->bindParam(1,$nombre);
             $pst_e->bindParam(2,$apellido);
             $pst_e->bindParam(3,$fecha_nacimiento);
             $pst_e->bindParam(4,$foto);
+            $pst_e->bindParam(5,$id);
             $resultado_emp=$pst_e->execute();
 
             if ($resultado_emp) {
-                // Obtiene el último ID insertado
-                $idEmpleado = $this->db->lastInsertId();
-
-                $pst_c=$this->db->prepare("INSERT INTO contrato(id_c, fecha_inicio, fecha_fin, salario_base)VALUES(?,?,?,?)");
-                $pst_c->bindParam(1,$idEmpleado);
-                $pst_c->bindParam(2,$fecha_inicio);
-                $pst_c->bindParam(3,$fecha_fin);
-                $pst_c->bindParam(4,$salario_base);
+                $pst_c=$this->db->prepare("update contrato set fecha_inicio=?,fecha_fin=?,salario_base=? where id=?");
+                $pst_c->bindParam(1,$fecha_inicio);
+                $pst_c->bindParam(2,$fecha_fin);
+                $pst_c->bindParam(3,$salario_base);
+                $pst_c->bindParam(4,$id);
                 $resultado_con=$pst_c->execute();
                 
                 if($resultado_con){
-                    $pst_d=$this->db->prepare("INSERT INTO departamento(id_d, nombre_d, ubicacion)VALUES(?,?,?)");
-                    $pst_d->bindParam(1,$idEmpleado);
-                    $pst_d->bindParam(2,$nombre_d);
-                    $pst_d->bindParam(3,$ubicacion);
+                    $pst_d=$this->db->prepare("update departamento set nombre_d=?,ubicacion=? where id=?");
+                    $pst_d->bindParam(1,$nombre_d);
+                    $pst_d->bindParam(2,$ubicacion);
+                    $pst_d->bindParam(3,$id);
                     $resultado_dep=$pst_d->execute();
 
                     if($resultado_con && $resultado_dep){
@@ -164,63 +114,42 @@ class EmpleadoModel {
             }else{
                 return false;
             }
-             // Si algo falla, retorna false
-            
-            // Cierra la conexión
-            $this->db = null;
             
         }elseif($this->change=='mysqli'){
-
-            // $pst=$this->db->prepare("insert into empleado(nombre,apellido,fecha_nacimiento,foto)values(?,?,?,?)");
-            // $pst->bind_Param('ssdi',$nombre,$apellido,$descripcion,$precio,$stock);  
-            // $resultado_emp=$pst->execute(); 
-
-            $pst_e=$this->db->prepare("INSERT INTO empleado(nombre, apellido, fecha_nacimiento, foto)VALUES(?,?,?,?)");
-            $pst_e->bind_Param('ssis',$nombre,$apellido,$fecha_nacimiento,$foto);
+            $pst_e=$this->db->prepare("update empleado set nombre=?,apellido=?,fecha_nacimiento=?,foto=? where id=?");
+            $pst_e->bind_Param('ssssi',$nombre,$apellido,$fecha_nacimiento,$foto,$id);
             $resultado_emp=$pst_e->execute();
 
-            if ($resultado_emp) {
-                // Obtiene el último ID insertado
-                $idEmpleado = $this->db->insert_id;
-
-                $pst_c=$this->db->prepare("INSERT INTO contrato(id_c, fecha_inicio, fecha_fin, salario_base)VALUES(?,?,?,?)");
-                $pst_c->bind_Param('iiid',$idEmpleado,$fecha_inicio,$fecha_fin,$salario_base); 
+            if ($resultado_emp){
+                $pst_c=$this->db->prepare("update contrato set fecha_inicio=?,fecha_fin=?,salario_base=? where id=?");
+                $pst_c->bind_Param('ssii',$fecha_inicio,$fecha_fin,$salario_base,$id); 
                 $resultado_con=$pst_c->execute();
 
                 if($resultado_con){
-                    $pst_d=$this->db->prepare("INSERT INTO departamento(id_d, nombre_d, ubicacion)VALUES(?,?,?)");
-                    $pst_d->bind_Param('iss',$idEmpleado,$nombre_d,$ubicacion); 
+                    $pst_d=$this->db->prepare("update departamento set nombre_d=?,ubicacion=? where id=?");
+                    $pst_d->bind_Param('ssi',$nombre_d,$ubicacion,$id); 
                     $resultado_dep=$pst_d->execute();
 
                     if($resultado_con && $resultado_dep){
                         return true;
                     }
                 }
-            
             }else{
                 return false;
             }
-             // Si algo falla, retorna false
-            
-            // Cierra la conexión
-            $this->db = null;
         }
+        $this->db = null;
     }
-
-
-
 
     //METODO ELIMINAR
     public function eliminar($id){
 
         if($this->change=='PDO'){
-
             $pst_c=$this->db->prepare("delete from contrato where id_c= ?");
             $pst_c->bindParam(1,$id);
             $resultado_con=$pst_c->execute();
 
-            if ($resultado_con) {
-
+            if ($resultado_con){
                 $pst_d=$this->db->prepare("delete from departamento where id_d= ?");
                 $pst_d->bindParam(1,$id);
                 $resultado_dep=$pst_d->execute();
@@ -234,7 +163,6 @@ class EmpleadoModel {
                         return true;
                     }
                 }
-                
             }else{
                 // Si algo falla, retorna false
                 return false;
@@ -267,11 +195,7 @@ class EmpleadoModel {
                 // Si algo falla, retorna false
                 return false;
             }
-            // Cierra la conexión
-            $this->db = null;
         }
+        $this->db = null;
     }
-
 }
-
-

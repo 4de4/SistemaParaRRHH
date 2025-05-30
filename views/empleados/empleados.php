@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-4Q6Gf2aSP4eDXB8Miphtr37CMZZQ5oXLH2yaXMJ2w8e2ZtHTl7GptT4jmndRuHDT" crossorigin="anonymous">
     <title>empleados..php</title>
 </head>
 <body>
@@ -21,14 +22,6 @@
                 <th>Foto</th>
                 <th>Fecha de Nacimiento</th>
                 <th>Edad</th>
-                <th>Fecha Inicio</th>
-                <th>Fecha Fin</th>
-                <th>Salario</th>
-                <th>Antiguedad</th>
-                <th>Bono</th>
-                <th>Duracion</th>
-                <th>Departamento</th>
-                <th>Direccion</th>
             </tr>
         </thead>					
         <tbody>
@@ -41,16 +34,9 @@
                     echo "<td><img class='img' height='100px' src='http://localhost/SistemaParaRRHH/views/fotos/".basename($dato['foto'])."'/></td>";
                     echo "<td>".$dato["fecha_nacimiento"]."</td>";
                     echo "<td>".$dato["edad"]."</td>";
-                    echo "<td>".$dato["fecha_inicio"]."</td>";
-                    echo "<td>".$dato["fecha_fin"]."</td>";
-                    echo "<td>".$dato["salario_base"]."</td>";
-                    echo "<td>".$dato["antiguedad"]."</td>";
-                    echo "<td>".$dato["bono"]."</td>";
-                    echo "<td>".$dato["duracion"]."</td>";
-                    echo "<td>".$dato["nombre_d"]."</td>";
-                    echo "<td>".$dato["ubicacion"]."</td>";
                     echo "<td class='btn'><a href='crud.php?c=empleado&a=modificar&id=".$dato["id_e"]."' class='btn btn-warning'>Modificar</a></td>";
 	                echo "<td class='btn'><a href='crud.php?c=empleado&a=eliminar&id=".$dato["id_e"]."' class='btn btn-danger'>Eliminar</a></td>";
+	                echo "<td class='btn'><a href='crud.php?c=empleado&a=eliminar&id=".$dato["id_e"]."' class='btn btn-danger'>Boleta</a></td>";
                     echo "</tr>";
                 }
                

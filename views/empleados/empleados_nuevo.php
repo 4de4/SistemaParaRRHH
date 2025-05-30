@@ -12,7 +12,7 @@
             para desactivar la función de autocompletado del navegador. Cuando se establece este atributo 
             en un campo de formulario, el navegador no sugiere valores almacenados previamente para ese 
             campo específico.   -->
-        <form id="nuevo" name="nuevo" method="POST" action="crud.php?c=empleado&a=guarda" autocomplete="off" enctype="multipart/form-data">
+        <form id="nuevo" name="nuevo" method="POST" action="crud.php?c=empleado&a=guardaNew" autocomplete="off" enctype="multipart/form-data">
             
             <div class="form-group">
                 <label for="nombre">Nombre:</label>
