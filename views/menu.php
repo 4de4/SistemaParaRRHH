@@ -16,11 +16,11 @@
     <div class="menu">
       <nav>
           <ul>
-            <?php if ($rol === 'empleado') : ?>
+            <?php if ($rol=='empleado') : ?>
             <li><a href="crud.php?c=empleado&a=index">Empleados</a></li>
             <li><a href="crud.php?c=departamento&a=index">Departamentos</a></li>
             <li><a href="crud.php?c=configuracion&a=index">Configuracion</a></li>
-            <?php elseif ($rol === 'jefe') : ?>
+            <?php elseif ($rol=='jefe') : ?>
             <li><a href="crud.php?c=menu&a=asignar">Asignar rol</a></li>
             <li><a href="crud.php?c=empleado&a=index">Empleados</a></li>
             <li><a href="crud.php?c=departamento&a=index">Departamentos</a></li>
