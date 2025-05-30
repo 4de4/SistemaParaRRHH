@@ -39,7 +39,9 @@ class UsuarioController
                 if ($row && count($row) > 0) {
                     $user = $row[0];
                     if ($user['password'] === $clave) {
+                        $_SESSION['id_u'] = $user['id_u'];
                         $_SESSION['username'] = $user['username'];
+                        $_SESSION['rol'] = $user['rol'];
 
                         header("location: ../views/crud.php");
                         exit();
