@@ -8,12 +8,13 @@
 <body>
     <center>
     <h2><?php echo $data["titulo"]; ?></h2>			
-				
-	<br>
-	<br>
-    
+    <br>
 	<table border="1" class="tablecliente">
         <thead>
+            <!-- Insertar puse recien -->
+            <tr>
+                <td colspan='13'><a href='crud.php?c=empleado&a=nuevo'>Agregar</a></td>
+            </tr>
             <tr>
                 <th>Nombre</th>
                 <th>Apellido</th>
@@ -48,6 +49,8 @@
                     echo "<td>".$dato["duracion"]."</td>";
                     echo "<td>".$dato["nombre_d"]."</td>";
                     echo "<td>".$dato["ubicacion"]."</td>";
+                    echo "<td class='btn'><a href='crud.php?c=empleado&a=modificar&id=".$dato["id_e"]."' class='btn btn-warning'>Modificar</a></td>";
+	                echo "<td class='btn'><a href='crud.php?c=empleado&a=eliminar&id=".$dato["id_e"]."' class='btn btn-danger'>Eliminar</a></td>";
                     echo "</tr>";
                 }
                

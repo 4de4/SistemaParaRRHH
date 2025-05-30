@@ -10,7 +10,7 @@ class UsuarioController
 
     function iniciar()
     {
-        if (isset($_POST['username']) && isset($_POST['password'])) {
+        if (isset($_POST['Username']) && isset($_POST['Password'])) {
             function validate($data)
             {
                 $data = trim($data);
@@ -20,8 +20,8 @@ class UsuarioController
                 return $data;
             }
 
-            $usuario = validate($_POST['username']);
-            $clave = validate($_POST['password']);
+            $usuario = validate($_POST['Username']);
+            $clave = validate($_POST['Password']);
             if (empty($usuario)) {
                 header("location: ../index.php?error=El usuario es requerido");
                 exit();
@@ -40,7 +40,6 @@ class UsuarioController
                     $user = $row[0];
                     if ($user['password'] === $clave) {
                         $_SESSION['username'] = $user['username'];
-                        $_SESSION['rol'] = $user['rol'];
 
                         header("location: ../views/crud.php");
                         exit();
@@ -69,11 +68,11 @@ class UsuarioController
             return $data;
         }
 
-        $usuario = validar($_POST['Username']);
-        $clave = validar($_POST['Password']);
+        $username = validar($_POST['Username']);
+        $password = validar($_POST['Password']);
         $Rpassword = validar($_POST['RPassword']);
 
-        $datosUsuario = 'Username=' . $usuario;
+        $datosUsuario = 'Username=' . $username;
 
         if(empty($username)){
             header("location: ../views/registrarse.php?error=El usuario es requerido&$datosUsuario");
@@ -98,7 +97,7 @@ class UsuarioController
                exit(); 
             }else{
                 $guardar = new Usuario();
-                $confirmar = $guardar->Registrar($usuario,$clave);
+                $confirmar = $guardar->Registrar($username,$password);
 
                 if($confirmar){
                     header("location: ../index.php?error=Usuario creado con exito!");
